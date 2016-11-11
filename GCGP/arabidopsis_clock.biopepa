@@ -1,0 +1,291 @@
+//********** MODEL PARAMETERS
+
+n0=0.4;
+n1=1.8;
+n2=0.7;
+n3=0.06;
+n4=0;
+n5=3.4;
+n6=1.25;
+n7=0.2;
+n8=0.42;
+n9=0.26;
+n10=0.18;
+n11=0.71;
+n12=2.3;
+n13=0;
+n14=0;
+
+g1=0.1;
+g2=0.28;
+g3=0.4;
+g4=0.91;
+g5=0.3;
+g6=0.3;
+g7=0.18;
+g8=0.14;  
+g9=0.3;
+g10=0.7;
+g11=0.7;
+g12=0.5;
+g13=0.6;
+g14=0.17;
+g15=0.4;
+g16=0.2;
+g17=0;
+
+m1=0.54;
+m2=0.24;
+m3=0.2;
+m4=0.2;
+m5=0.3;
+m6=0.25;
+m7=0.5;
+m8=0.1;
+m9=1;
+m10=0.3;
+m11=1;
+m12=1;
+m13=0.32;
+m14=0.28;
+m15=0.31; 
+m16=0.5;
+m17=0.3;
+m18=1;
+m19=0.2;
+m20=1.2;
+m21=0.2;
+m22=2;
+m23=1;
+m24=0.405;
+m25=0.28;
+m26=0.14;
+m27=0;
+m28=0; 
+
+
+// 
+// The following 'p*' parameters regulate the translation from mRNA to
+// protein. By setting them to very low values, we can surpress translation 
+// of certain proteins, equivalent to a knock-out. Note, that the mRNA 
+// is still expressed but not functional anymore.
+// 
+p1=0.4;
+p2=0.27;
+//p1=0.0001;  // LHY knockout
+//p2=0.0001;  // LHY knockout
+p3=0.1;
+//p3=0.0001;  // LHY_motif
+p4=0.268;  
+//p4=0.0001;    // TOC1 knockout
+p5=1;
+p6=0.436;
+//p6=0.0001;    // Y knockout
+p7=0.3;
+//p7=0.0001;    // P knockout
+p8=0.7;
+//p8=0.0001;	// PRR9 knockout
+p9=0.4;
+//p9=0.0001;    // PRR7 knockout
+p10=0.36;
+//p10=0.0001;   // PRR5_NI knockout
+p11=0.23;
+//p11=0.0001;   // GI knockout
+p12=30;
+p13=0.4;
+p14=0.45;
+p15=0.05;
+//p15=0.0001;   // TOC1_motif knockout
+p16=0; 
+
+q1=0.8;
+q2=0.5;
+q3=2.9;
+q4=0.6;
+
+a=2;
+b=3;
+c=3;
+d=2.5;
+e=2;
+f=3;
+g=2;
+h=2;
+i=3;
+j=3;
+k=3;
+l=2;
+m=2;
+n=1;
+o=2;
+s=3;
+p=1;
+
+
+//********** MODEL VARIABLES
+period=24;
+
+dusk_entrainment = 12; //3,6,9,12,15,18,21
+dusk_observation = 22; //3,6,9,12,15,18,21
+
+dusk1_entrainment_skeleton = 3;
+dawn2_entrainment_skeleton = 9;
+dusk2_entrainment_skeleton = 12; //dawn2_entrainment_skeleton + 3 ;
+
+dusk1_observation_skeleton = 3;
+dawn2_observation_skeleton = 12; //12,15,18
+dusk2_observation_skeleton = 15; //dawn2_observation_skeleton + 3 ;
+
+omega = 100; //10,100,1000
+
+entrainment_cycles = 5;  // not 5 to avoid spike when DD in observation
+entrainment_time = 24 * entrainment_cycles;
+
+//total_time = entrainment_time + observation_time;
+
+_LD_entrainment          = 1; 
+_LD_entrainment_skeleton = 0;
+//LD cycles           : _LD_entrainment=1, _LD_entrainment_skeleton=0, and choose appropriate photoperiod with dusk_entrainment
+//LD cycles + skeleton: _LD_entrainment_skeleton=1, _LD_entrainment=0, and choose appropriate photoperiod with dusk_entrainment and dawn2_entrainment_skeleton
+
+_DD_observation = 0;
+_LL_observation = 0;
+_LD_observation = 1;  // sollte auf 1 wenn wir LD messen wollen
+_LD_observation_skeleton = 0;
+//constant dark:        _DD_observation=1, _LL_observation=_LD_observation=_LD_observation_skeleton=0
+//constant light:       _LL_observation=1, _DD_observation=_LD_observation=_LD_observation_skeleton=0
+//LD cycles:            _LD_observation=1, _LL_observation=_DD_observation=_LD_observation_skeleton=0, and choose appropriate photoperiod with dusk_observation
+//LD cycles + skeleton: _LD_observation_skeleton=1, _LL_observation=_DD_observation=_LD_observation=0, and choose appropriate photoperiod with dusk_observation and dawn2_observation_skeleton
+
+
+light_entrainment          = _LD_entrainment          * (0.5*((1+tanh((time-period*floor(time/period))/0.5)) - (1+tanh((time-period*floor(time/period)-dusk_entrainment)/0.5)) + (1+tanh((time-period*floor(time/period)-period)/0.5)))) ;
+light_entrainment_skeleton = _LD_entrainment_skeleton * (0.5*((1+tanh((time-period*floor(time/period))/0.5)) - (1+tanh((time-period*floor(time/period)-dusk1_entrainment_skeleton)/0.5)) + (1+tanh((time-period*floor(time/period)-dawn2_entrainment_skeleton)/0.5)) - (1+tanh((time-period*floor(time/period)-dusk2_entrainment_skeleton)/0.5)) + (1+tanh((time-period*floor(time/period)-period)/0.5)))) ;
+
+light_observation          = _DD_observation          * (0*H(time+1)) + 
+                             _LL_observation          * (1*H(time+1)) + 
+                             _LD_observation          * (0.5*((1+tanh((time-period*floor(time/period))/0.5)) - (1+tanh((time-period*floor(time/period)-dusk_observation)/0.5)) + (1+tanh((time-period*floor(time/period)-period)/0.5)))) ;
+
+light_observation_skeleton = _LD_observation_skeleton * (0.5*((1+tanh((time-period*floor(time/period))/0.5)) - (1+tanh((time-period*floor(time/period)-dusk1_observation_skeleton)/0.5)) + (1+tanh((time-period*floor(time/period)-dawn2_observation_skeleton)/0.5)) - (1+tanh((time-period*floor(time/period)-dusk2_observation_skeleton)/0.5)) + (1+tanh((time-period*floor(time/period)-period)/0.5)))) ;
+
+light = light_entrainment          *      H(entrainment_time - time)  +
+        light_entrainment_skeleton *      H(entrainment_time - time)  +
+        light_observation          * (1 - H(entrainment_time - time)) +
+        light_observation_skeleton * (1 - H(entrainment_time - time)) ;
+
+dark = 1-light;
+
+
+
+//********** MODEL KINETIC RATES
+//
+// AA: why are some rates are scaled with the volume omega?
+//
+cL_m_trscr  = [(1*omega) * (g1*omega)^a/((g1*omega)^a+(PRR9_prot+PRR7_prot+PRR5_NI_prot)^a)*(n0*light+(q1/omega)*light*P+n1*TOC1_prot_modif^b/(TOC1_prot_modif^b+(g2*omega)^b))];
+cL_m_degr   = [LHY_mRNA*(m1*light+m2*dark)];
+cL_trsl     = [(p1*light + p2*dark)*LHY_mRNA];
+cL_degr     = [m3*LHY_prot];
+cL_modif    = [(p3*LHY_prot^c/(LHY_prot^c+(g3*omega)^c))*omega];
+cLm_degr    = [m4*LHY_prot_modif];
+
+cT_m_trscr  = [(1*omega) * (n2*Y_prot^d/(Y_prot^d+(g4*omega)^d)+n3)*((g5*omega)^e/((g5*omega)^e+LHY_prot^e))];
+cT_m_degr   = [TOC1_mRNA*m5];
+cT_trsl     = [p4*TOC1_mRNA];
+cT_degr1    = [(m6*light+m7*dark)*TOC1_prot*(p5*ZTL+GI:ZTL)/omega];
+cT_degr2    = [m8*TOC1_prot];
+cT_modif    = [(p15*TOC1_prot^f/(TOC1_prot^f+(g6*omega)^f))*omega];
+cTm_degr    = [(m25*light+m26*dark)*TOC1_prot_modif];
+
+cY_m_trscr  = [(1*omega) * ((q2/omega)*light*P+(g7*omega)^s/((g7*omega)^s+TOC1_prot^s)*(g16*omega)^g/((g16*omega)^g+LHY_prot^g)*(n5*light+n6*dark))];
+cY_m_degr   = [Y_mRNA*m9];
+cY_trsl     = [Y_mRNA*p6];
+cY_degr     = [m10*Y_prot];
+
+cP_trsl     = [p7*dark*((1*omega)-P)];
+cP_degr     = [m11*P*light];
+
+cP9_m_trscr = [(1*omega) * ((q3/omega)*light*P+(g8*omega)^h/((g8*omega)^h+TOC1_prot^h)*(n4+n7*LHY_prot^i/(LHY_prot^i+(g9*omega)^i)))];
+cP9_m_degr  = [m12*PRR9_mRNA];
+cP9_trsl    = [p8*PRR9_mRNA];
+cP9_degr    = [(m13*light+m22*dark)*PRR9_prot];
+
+cP7_m_trscr = [(1*omega) * (n8*(LHY_prot+LHY_prot_modif)^j/((g10*omega)^j+(LHY_prot+LHY_prot_modif)^j)+n9*PRR9_prot^k/((g11*omega)^k+PRR9_prot^k))];
+cP7_m_degr  = [m14*PRR7_mRNA];
+cP7_trsl    = [p9*PRR7_mRNA];
+cP7_degr    = [PRR7_prot*(m15*light+m23*dark)];
+
+cNI_m_trscr = [(1*omega) * (n10*LHY_prot_modif^l/((g12*omega)^l+LHY_prot_modif^l)+n11*PRR7_prot^m/((g13*omega)^m+PRR7_prot^m))];
+cNI_m_degr  = [m16*PRR5_NI_mRNA];
+cNI_trsl    = [p10*PRR5_NI_mRNA];
+cNI_degr    = [(m17*light+m24*dark)*PRR5_NI_prot];
+
+cG_m_trscr = [(1*omega) * ((q4/omega)*light*P+(g14*omega)^n/((g14*omega)^n+TOC1_prot^n)*(g15*omega)^o/((g15*omega)^o+LHY_prot^o)*n12*light)];
+cG_m_degr  = [GI_mRNA*m18];
+cG_trsl    = [p11*GI_mRNA];
+cG_degr    = [m19*GI_prot];
+
+cZTL_trsl  = [(1*omega)*p14];
+cZTL_degr  = [m20*ZTL];
+
+cG_cZTL_assoc_f = [(p12*light*ZTL*GI_prot)/omega];
+cG_cZTL_assoc_b = [p13*GI:ZTL*dark];
+
+cZG_degr  = [m21*GI:ZTL];
+
+
+
+//********** MODEL REACTIONS
+LHY_mRNA       = cL_m_trscr >> + cL_m_degr << + cL_trsl (+);
+LHY_prot       = cL_trsl >> + cL_degr << + cL_modif << + cG_m_trscr (-) + cP7_m_trscr (+) + cP9_m_trscr (+) + cT_m_trscr (-) + cY_m_trscr (-) ;
+LHY_prot_modif = cL_modif >> + cLm_degr << + cP7_m_trscr (+) + cNI_m_trscr (+) ; 
+
+TOC1_mRNA       = cT_m_trscr >> + cT_m_degr << + cP7_m_trscr (+) + cT_trsl (+) ;
+TOC1_prot       = cT_trsl >> + cT_degr1 << + cT_degr2 << + cG_m_trscr (+) + cT_modif (+) + cY_m_trscr (+) + cP9_m_trscr (-) ;
+TOC1_prot_modif = cT_modif >> + cTm_degr << + cL_m_trscr (+) ;
+
+Y_mRNA = cY_m_trscr >> + cY_m_degr << + cY_trsl (+) ;
+Y_prot = cY_trsl >> + cY_degr << + cT_m_trscr (+) ;
+
+P = cP_trsl >> + cP_degr << + cG_m_trscr (+) + cL_m_trscr (+) + cY_m_trscr (+) + cP9_m_trscr (+) ;
+
+PRR9_mRNA = cP9_m_trscr >> + cP9_m_degr << + cP9_trsl (+) ;
+PRR9_prot = cP9_trsl >> + cP9_degr << + cL_m_trscr (-) + cP7_m_trscr (+) ;
+
+PRR7_mRNA = cP7_m_trscr >> + cP7_m_degr << + cP7_trsl(+) ;
+PRR7_prot = cP7_trsl >> + cP7_degr << + cL_m_trscr (-) + cNI_m_trscr (+) ;
+
+PRR5_NI_mRNA = cNI_m_trscr >> + cNI_m_degr << + cNI_trsl (+) ;
+PRR5_NI_prot = cNI_trsl >> + cNI_degr << + cL_m_trscr (-) ;
+
+GI_mRNA = cG_m_trscr >> + cG_m_degr << + cG_trsl (+) ;
+GI_prot = cG_trsl >> + cG_degr << + cG_cZTL_assoc_f << + cG_cZTL_assoc_b >> ;
+
+ZTL = cZTL_trsl >> + cZTL_degr << + cG_cZTL_assoc_f << + cG_cZTL_assoc_b >> + cT_degr1 (+) ;
+
+GI:ZTL = cG_cZTL_assoc_f >> + cG_cZTL_assoc_b << + cZG_degr << + cT_degr1 (+) ;
+
+
+LHY_prot_tot = LHY_prot + LHY_prot_modif;
+TOC1_prot_tot = TOC1_prot + TOC1_prot_modif;
+ZTL_tot = ZTL + GI:ZTL;
+GI_tot = GI_prot + GI:ZTL;
+
+// initial molecular count (?), i.e. concentration * volume = [X]*V = [X]*Omega 
+LHY_mRNA[floor(1*omega)] <*>
+P[floor(0.825*omega)] <*>
+GI:ZTL[floor(0.323*omega)] <*>
+LHY_prot[floor(0.416*omega)] <*>
+TOC1_mRNA[floor(0.054*omega)] <*>
+PRR9_prot[floor(0.056*omega)] <*>
+PRR5_NI_mRNA[floor(0.044*omega)] <*>
+PRR5_NI_prot[floor(0.044*omega)] <*>
+GI_prot[floor(0.119*omega)] <*>
+TOC1_prot[floor(0.393*omega)] <*>
+ZTL[floor(0.323*omega)] <*>
+Y_mRNA[floor(0.093*omega)] <*>
+GI_mRNA[floor(0.119*omega)] <*>
+PRR9_mRNA[floor(0.35*omega)] <*>
+PRR7_mRNA[floor(0.056*omega)] <*>
+PRR7_prot[floor(0.019*omega)] <*>
+TOC1_prot_modif[floor(0.393*omega)] <*>
+Y_prot[floor(0.1*omega)] <*>
+LHY_prot_modif[floor(0.054*omega)]

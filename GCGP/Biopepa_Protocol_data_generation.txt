@@ -1,0 +1,62 @@
+
+General: 
+
+5 days entrainment (12/12 all simulations), 1 day observation 
+
+set entrainment_cycles = 5;
+
+
+
+To trigger gene knockout: 
+	- set kinetic rate (variable p) of gene to knockout to very low value
+	
+To change Light Dark condition to LL,DD,LD
+	- controlled by variable _[LD|LL|DD]_observation, set one of them to 1 to enable
+	- for DD make sure to set the entrainment_cycles a little down so that the spike after entrainment disappears
+	   I've used 4.9 for it  
+
+
+Samples taken every 6 minutes -> 144 samples/day, total 1440 samples
+
+Components: 20 mRNAs and Proteins + light; GI.ZTL and ZTL are included but can/should be excluded when scaling.
+
+
+Data WT:
+
+     on 6th day: LL, LD, DD 
+
+     set one of these, e.g LD (12/12) is enabled: 
+     _DD_observation = 0;
+     _LL_observation = 0;
+     _LD_observation = 1; 
+
+     filenames: biopepa_wt_[LD|LL|DD]_id[1-5].txt
+
+
+Data WT_photoperiod:
+
+     on 6th day: varying photoperiod
+
+     set '_LD_observation = 1;' (for LD)
+
+     and 'dusk_observation = [4|6|8|18];' 
+
+     filenames: biopepa_wt_photoperiod_[hours_of_light]_id[1-5].txt
+
+Data Knockout:
+
+     on 6th day: no change, same 12/12 LD as entrainment (i.e. dusk_observation = 12 )
+
+     knockouts: LHY/CCA1  - p1 & p2 = 0.0001
+     	PPR7,PPR9 - p8 & p9 = 0.0001
+		TOC1      - p4 = 0.0001
+		GI        - p11 = 0.0001
+
+     filenames: biopepa_knockout_[LHY|PPR7_PPR9|TOC1|GI]_id[1-5].txt
+
+
+
+     
+
+     
+
